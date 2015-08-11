@@ -8,15 +8,35 @@
 
 namespace aspk {
 
+typedef LRESULT (WINAPI* GetDpiForMonitorPtr)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*);
+
 DpiScaler::DpiScaler(HWND aHwnd)
   : mXScalePercent(0)
   , mYScalePercent(0)
 {
   UINT x, y;
-  HMONITOR monitor = MonitorFromWindow(aHwnd, MONITOR_DEFAULTTONEAREST);
-  if (SUCCEEDED(GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &x, &y))) {
-    Invalidate(x, y);
+  // Try the Windows 8 monitor-aware way
+  HMODULE shcore = LoadLibraryW(L"shcore.dll");
+  if (shcore) {
+    GetDpiForMonitorPtr pGetDpiForMonitor = (GetDpiForMonitorPtr) GetProcAddress(shcore, "GetDpiForMonitor");
+    if (pGetDpiForMonitor) {
+      HMONITOR monitor = MonitorFromWindow(aHwnd, MONITOR_DEFAULTTONEAREST);
+      if (SUCCEEDED(pGetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &x, &y))) {
+        Invalidate(x, y);
+        return;
+      }
+    }
+    FreeLibrary(shcore);
   }
+  // Oh well, try the old system-wide way
+  HDC dc = GetDC(NULL);
+  if (!dc) {
+    return;
+  }
+  x = GetDeviceCaps(dc, LOGPIXELSX);
+  y = GetDeviceCaps(dc, LOGPIXELSY);
+  ReleaseDC(NULL, dc);
+  Invalidate(x, y);
 }
 
 wchar_t const GlassWindow::kClassName[] = L"ASPKGlassWindowClass";

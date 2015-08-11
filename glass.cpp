@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <commctrl.h>
 #include <ShellScalingApi.h>
 #include <string>
 
@@ -10,9 +11,7 @@ using aspk::GlassWindow;
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      LPSTR lpCmdLine, int nCmdShow)
 {
-  if (FAILED(SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE))) {
-    return 1;
-  }
+  InitCommonControls();
 
   GlassWindow mainWindow(hInstance, wstring(L"Glass Scratch"));
   mainWindow.Show(nCmdShow);
