@@ -12,11 +12,6 @@ using namespace std;
 HWND g_hwndMain;
 HINSTANCE g_hInstance;
 
-UINT TOPEXTENDWIDTH;
-UINT BOTTOMEXTENDWIDTH;
-UINT LEFTEXTENDWIDTH;
-UINT RIGHTEXTENDWIDTH;
-
 inline UINT RectWidth(RECT const &r)
 {
   return r.right - r.left;
@@ -366,7 +361,6 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
   wc.hInstance = hInstance;
   wc.hCursor = LoadCursor(NULL, IDC_ARROW);
   wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-  // wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
   wc.lpszClassName = "FooClass";
 
   if (!RegisterClassEx(&wc)) {
