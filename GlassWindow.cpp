@@ -466,14 +466,14 @@ GlassWindow::OnPaint(HDC aDc)
   // TODO: Adjust client rect with some padding
   // TODO: a11y for window text
 
-  MAKE_UNIQUE_HANDLE(theme, OpenThemeData(mHwnd, L"CompositedWindow::Window"), &CloseThemeData);
+  UniqueThemeHandle theme(::OpenThemeData(mHwnd, L"CompositedWindow::Window"));
 
   LOGFONT logFont;
   if (FAILED(GetThemeSysFont(theme.get(), TMT_MSGBOXFONT, &logFont))) {
     return;
   }
 
-  MAKE_UNIQUE_HANDLE(font, CreateFontIndirect(&logFont), &DeleteObject);
+  UniqueGdiHandle font(::CreateFontIndirect(&logFont));
   if (!font) {
     return;
   }

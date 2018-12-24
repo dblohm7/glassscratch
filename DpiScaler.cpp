@@ -38,7 +38,7 @@ DpiScaler::Init(HMONITOR aMonitor)
 {
   UINT x, y;
   // Try the Windows 8 monitor-aware way
-  MAKE_UNIQUE_HANDLE(shcore, LoadLibraryW(L"shcore.dll"), &FreeLibrary);
+  UniqueModule shcore(::LoadLibraryW(L"shcore.dll"));
   if (shcore) {
     GetDpiForMonitorPtr pGetDpiForMonitor = (GetDpiForMonitorPtr) GetProcAddress(shcore.get(), "GetDpiForMonitor");
     if (pGetDpiForMonitor) {
