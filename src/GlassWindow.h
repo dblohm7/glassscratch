@@ -230,6 +230,7 @@ public:
 protected:
   virtual void OnPaint(HDC aDc);
   virtual void OnDestroy();
+  virtual void OnSessionChange(WPARAM aSessionChangeEvent);
 
 protected:
   // Types
@@ -238,6 +239,7 @@ protected:
   // Instance Variables
   HINSTANCE                       mInstance;
   HWND                            mHwnd;
+  BOOL                            mWTSRegistered;
   std::shared_ptr<DpiScaler>      mDpiScaler;
   std::shared_ptr<DpiScaler>      mNcDpiScaler;
   std::unique_ptr<GlassMargins>   mMargins;
@@ -266,6 +268,7 @@ private:
   static void OnActivate(HWND hwnd, UINT state, HWND hwndActDeact, BOOL minimized);
   static BOOL OnNcActivate(HWND hwnd, BOOL activate, HWND other, BOOL minimized);
   static void OnEnable(HWND hwnd, BOOL enable);
+  static void OnSessionChange(HWND hwnd, WPARAM aSessionChangeEvent);
   static void OnSize(HWND hwnd, UINT state, int cx, int cy);
   static void OnShowWindow(HWND hwnd, BOOL show, UINT status);
   static LRESULT OnNcHitTest(HWND hwnd, int x, int y);

@@ -2,5 +2,5 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-IMPORT_LIBS=user32.lib gdi32.lib dwmapi.lib uxtheme.lib comctl32.lib gdiplus.lib msimg32.lib
+IMPORT_LIBS=user32.lib gdi32.lib dwmapi.lib uxtheme.lib comctl32.lib gdiplus.lib msimg32.lib wtsapi32.lib
 

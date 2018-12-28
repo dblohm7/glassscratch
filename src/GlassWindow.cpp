@@ -9,6 +9,7 @@
 #include <uxtheme.h>
 #include <vssym32.h>
 #include <VersionHelpers.h>
+#include <wtsapi32.h>
 
 #include <assert.h>
 #include <vector>
@@ -127,6 +128,7 @@ wchar_t const GlassWindow::kClassName[] = L"ASPKGlassWindowClass";
 GlassWindow::GlassWindow(HINSTANCE aInstance, std::wstring const &aTitleText)
   : mInstance(aInstance)
   , mHwnd(NULL)
+  , mWTSRegistered(false)
   , mQuitOnDestroy(false)
   , mDebug(false)
   , mPrintfBufLen(0)
@@ -138,6 +140,7 @@ GlassWindow::GlassWindow(HINSTANCE aInstance, std::wstring const &aTitleText)
 GlassWindow::GlassWindow(HINSTANCE aInstance, GlassWindow::Params const &aParams)
   : mInstance(aInstance)
   , mHwnd(NULL)
+  , mWTSRegistered(false)
   , mQuitOnDestroy(aParams.QuitOnDestroy())
   , mDebug(aParams.IsVisualDebugMode())
   , mPrintfBufLen(0)
@@ -419,6 +422,10 @@ GlassWindow::OnCreate(HWND aHwnd, MARGINS const & aMargins)
 {
   mHwnd = aHwnd;
   SetWindowLongPtrW(aHwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+
+  mWTSRegistered =
+    ::WTSRegisterSessionNotification(aHwnd, NOTIFY_FOR_THIS_SESSION);
+
   BufferedPaintInit();
   mDpiScaler = std::make_shared<DpiScaler>(mHwnd);
   POINT pt = {0, 0};
@@ -495,6 +502,13 @@ void
 GlassWindow::OnDestroy()
 {
   BufferedPaintUnInit();
+
+  if (mWTSRegistered) {
+    if (::WTSUnRegisterSessionNotification(mHwnd)) {
+      mWTSRegistered = false;
+    }
+  }
+
   if (mQuitOnDestroy) {
     PostQuitMessage(0);
   }
@@ -636,6 +650,31 @@ GlassWindow::OnSize(HWND aHwnd, UINT aState, int aCx, int aCy)
   instance->mListView->Resize(aCx, aCy);
 }
 
+void
+GlassWindow::OnSessionChange(HWND aHwnd, WPARAM aSessionChangeEvent)
+{
+  GlassWindow* instance = reinterpret_cast<GlassWindow*>(GetWindowLongPtrW(aHwnd, GWLP_USERDATA));
+  if (!instance) {
+    return;
+  }
+
+  instance->OnSessionChange(aSessionChangeEvent);
+}
+
+void
+GlassWindow::OnSessionChange(WPARAM aSessionChangeEvent)
+{
+  switch (aSessionChangeEvent) {
+    case WTS_CONSOLE_CONNECT:
+    case WTS_REMOTE_CONNECT:
+    case WTS_SESSION_UNLOCK:
+      ::InvalidateRect(mHwnd, nullptr, TRUE);
+      break;
+    default:
+      break;
+  }
+}
+
 LRESULT CALLBACK
 GlassWindow::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -654,6 +693,9 @@ GlassWindow::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     HANDLE_MSG(hwnd, WM_NCDESTROY, OnNcDestroy);
     HANDLE_MSG(hwnd, WM_PAINT, OnPaint);
     HANDLE_MSG(hwnd, WM_SIZE, OnSize);
+    case WM_WTSSESSION_CHANGE:
+      OnSessionChange(hwnd, wParam);
+      return 0;
     default:
       break;
   }
