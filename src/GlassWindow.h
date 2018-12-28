@@ -230,7 +230,12 @@ public:
 protected:
   virtual void OnPaint(HDC aDc);
   virtual void OnDestroy();
-  virtual void OnSessionChange(WPARAM aSessionChangeEvent);
+
+  // Resume timers and animations
+  virtual void OnSessionReconnect() {}
+
+  // Pause timers and animations
+  virtual void OnSessionDisconnect() {}
 
 protected:
   // Types
@@ -258,6 +263,7 @@ private:
   void OnCreate(HWND aHwnd, MARGINS const & aMargins);
   void OnErase(HDC aDc, RECT const &aRect);
   void OnThemeChanged();
+  void OnSessionChange(WPARAM aSessionChangeEvent);
   void GetClientRectInset(RECT &aRect);
   void MaybeCreateListView(const size_t aNumCols);
 

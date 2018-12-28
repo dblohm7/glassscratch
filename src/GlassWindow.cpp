@@ -667,8 +667,17 @@ GlassWindow::OnSessionChange(WPARAM aSessionChangeEvent)
   switch (aSessionChangeEvent) {
     case WTS_CONSOLE_CONNECT:
     case WTS_REMOTE_CONNECT:
+      // TODO ASK: The above two items should invoke a method for toggling
+      //           double-buffering
     case WTS_SESSION_UNLOCK:
+      OnSessionReconnect();
       ::InvalidateRect(mHwnd, nullptr, TRUE);
+      Update();
+      break;
+    case WTS_CONSOLE_DISCONNECT:
+    case WTS_REMOTE_DISCONNECT:
+    case WTS_SESSION_LOCK:
+      OnSessionDisconnect();
       break;
     default:
       break;
