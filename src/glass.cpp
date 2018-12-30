@@ -1,17 +1,5 @@
-#include <windows.h>
-#include <commctrl.h>
-#include <ShellScalingApi.h>
-#include <sstream>
-#include <string>
-#include <winternl.h>
-#include <uxtheme.h>
-#include <vssym32.h>
-
 #include "GlassWindow.h"
 #include "GlassWindowApp.h"
-#include "UniqueHandle.h"
-
-#include "odbs.h"
 
 using namespace std;
 using namespace aspk;
@@ -28,8 +16,7 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine,
 
   GlassWindow::Params params;
   params.SetTitleText(L"Scratch Program");
-  params.SetFlags(GlassWindow::Params::eSolidGlass |
-                  GlassWindow::Params::eQuitOnDestroy);
+  params.SetFlags(GlassWindow::Params::eDefaultFlags);
 
   GlassWindow mainWindow(hInstance, params);
   mainWindow.Show(nCmdShow);
