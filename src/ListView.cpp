@@ -113,15 +113,22 @@ ListView::ResizeColumns()
 bool
 ListView::InsertCell(const wchar_t* aText)
 {
-  const size_t textLen = aText ? wcslen(aText) : 0;
-  const bool hasNewline = textLen ? aText[textLen - 1] == L'\n' : false;
+  std::wstring strText;
+  if (aText) {
+    strText = aText;
+  }
+
+  const bool hasNewline = strText.empty() ? false : strText.back() == L'\n';
+  if (hasNewline) {
+    strText.pop_back();
+  }
 
   LVITEMW lvItem = {};
   lvItem.iItem = mCurRow;
 
-  if (aText) {
+  if (!strText.empty()) {
     lvItem.mask |= LVIF_TEXT;
-    lvItem.pszText = const_cast<LPWSTR>(aText);
+    lvItem.pszText = const_cast<LPWSTR>(strText.c_str());
   }
 
   if (!mCurCol) {

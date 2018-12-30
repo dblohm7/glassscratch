@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <windows.h>
 #include <dwmapi.h>
@@ -225,6 +226,7 @@ public:
     return ::GetSystemMetrics(SM_REMOTESESSION);
   }
 
+  void SetColumns(const std::vector<wchar_t const *>& aColumnNames);
   void Printf(const wchar_t* aFmt, ...);
 
 protected:

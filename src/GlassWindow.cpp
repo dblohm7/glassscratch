@@ -133,7 +133,7 @@ GlassWindow::GlassWindow(HINSTANCE aInstance, std::wstring const &aTitleText)
   , mDebug(false)
   , mPrintfBufLen(0)
 {
-  MARGINS margins = {0};
+  MARGINS margins = {};
   Init(aTitleText, 0, 0, 640, 480, margins, (HBRUSH)(COLOR_WINDOW + 1));
 }
 
@@ -230,6 +230,26 @@ GlassWindow::MaybeCreateListView(const size_t aNumCols)
 
   for (size_t i = 0; i < aNumCols; ++i) {
     bool ok = mListView->InsertColumn();
+    assert(ok);
+  }
+}
+
+void
+GlassWindow::SetColumns(const std::vector<wchar_t const *>& aColumnNames)
+{
+  if (mListView) {
+    return;
+  }
+
+  mListView = std::make_unique<ListView>(*this);
+  if (!(*mListView)) {
+    return;
+  }
+
+  bool ok = true;
+
+  for (auto colName : aColumnNames) {
+    ok &= mListView->InsertColumn(colName);
     assert(ok);
   }
 }
